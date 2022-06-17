@@ -8,4 +8,7 @@
     cd agent
     docker build --tag rnn .
     docker run rnn
+
+### Run generate stubs
+    make proto
     
