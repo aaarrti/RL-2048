@@ -3,14 +3,15 @@ from __future__ import print_function, with_statement, absolute_import, division
 from tf_agents.policies import policy_saver
 from tf_agents.environments import tf_py_environment
 
-from rl.pkg.agent import *
-from rl.pkg.replay_buffer import *
-from rl.pkg.env import *
+from internal.agent import *
+from internal.replay_buffer import *
+from internal.env import *
 import os
 
+
 if __name__ == '__main__':
-    os.environ['GRPC_TRACE'] = 'all'
-    os.environ['GRPC_VERBOSITY'] = 'debug'
+    #os.environ['GRPC_TRACE'] = 'all'
+    #os.environ['GRPC_VERBOSITY'] = 'debug'
     # provision envs
     py_env = provision_env()
     train_py_env = provision_env()

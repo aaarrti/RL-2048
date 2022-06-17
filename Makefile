@@ -1,5 +1,5 @@
 PROTO_DIR = proto
-PACKAGE = $(shell head -1 2048/go.mod | awk '{print $$2}')
+PACKAGE = $(shell head -1 go.mod | awk '{print $$2}')
 
 .DEFAULT_GOAL := proto
 .PHONY: proto

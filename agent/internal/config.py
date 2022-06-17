@@ -15,4 +15,4 @@ fc_layer_params = (100, 50)
 
 env_provisioner_uri = 'host.docker.internal:50055'
 
-game_base_uri = 'localhost:'
+game_base_uri = 'host.docker.internal:'

@@ -2,7 +2,8 @@ syntax = 'proto3';
 
 package proto;
 
-option go_package = "github.com/aaarrti/2048-grpc/proto";
+option go_package = "github.com/aaarrti/RL-2048";
+import "google/protobuf/empty.proto";
 
 enum MoveEnum {
   UP = 0;
@@ -15,13 +16,16 @@ message MoveMessage {
   MoveEnum value = 1;
 }
 
+
 message GameState {
-  repeated int32 value = 1;
+  repeated int32 Value = 1;
 }
 
 service GameService {
 
   rpc doMove (MoveMessage) returns (GameState);
+
+  rpc reset (google.protobuf.Empty) returns (GameState);
 
 }
 

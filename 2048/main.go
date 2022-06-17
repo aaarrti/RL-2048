@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/aaarrti/RL-2048/2048/env"
 	"github.com/aaarrti/RL-2048/2048/util"
-	pb "github.com/aaarrti/RL-2048/proto/go/proto"
+	pb "github.com/aaarrti/RL-2048/proto/go"
 	grpczap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"

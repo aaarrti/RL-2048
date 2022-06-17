@@ -4,10 +4,11 @@ import (
 	"context"
 	"fmt"
 	"github.com/aaarrti/RL-2048/2048/util"
-	pb "github.com/aaarrti/RL-2048/proto/go/proto"
+	pb "github.com/aaarrti/RL-2048/proto/go"
 	grpczap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"log"
 	"net"
 )
@@ -16,13 +17,16 @@ type ServerGameType struct {
 	pb.GameServiceServer
 	game     *IBoard
 	maxScore int
+	ogMatrix [][]int
 }
 
 func NewServerGame() ServerGameType {
 	b := New()
 	b.AddElement()
 	b.AddElement()
-	return ServerGameType{game: &b, maxScore: 0}
+	return ServerGameType{game: &b, maxScore: 0,
+		ogMatrix: b.(*SBoard).Matrix,
+	}
 }
 
 func (s *ServerGameType) ServerGame(port int) {
@@ -51,6 +55,11 @@ func (s *ServerGameType) DoMove(ctx context.Context, in *pb.MoveMessage) (*pb.Ga
 
 	res := pb.GameState{Value: flattenMatrix(board.(*SBoard).Matrix)}
 	return &res, nil
+}
+
+func (s *ServerGameType) Reset(context.Context, *emptypb.Empty) (*pb.GameState, error) {
+	(*s.game).(*SBoard).Matrix = s.ogMatrix
+	return &pb.GameState{Value: flattenMatrix(s.ogMatrix)}, nil
 }
 
 func mapMove(enum pb.MoveEnum) Dir {

@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/aaarrti/RL-2048/2048/game"
 	"github.com/aaarrti/RL-2048/2048/util"
-	pb "github.com/aaarrti/RL-2048/proto/go/proto"
+	pb "github.com/aaarrti/RL-2048/proto/go"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
