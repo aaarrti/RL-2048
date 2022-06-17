@@ -5,7 +5,6 @@ import tensorflow as tf
 import tf_agents as tfa
 from tf_agents.environments import PyEnvironment
 from tf_agents.trajectories import time_step as ts
-from tf_agents.trajectories.time_step import TimeStep
 from tf_agents.typing import types
 from google.protobuf.empty_pb2 import Empty
 import grpc
@@ -15,9 +14,6 @@ from proto.python.env_pb2_grpc import EnvServiceStub
 from proto.python.game_pb2_grpc import GameServiceStub
 from proto.python.game_pb2 import MoveMessage
 from .util import *
-
-
-from tf_agents.environments import suite_gym
 
 
 def max_arr(arr):
@@ -63,9 +59,13 @@ class Game2048Env(PyEnvironment):
         with grpc.insecure_channel(self._uri()) as channel:
             stub = GameServiceStub(channel)
             res = stub.doMove(MoveMessage(value=action))
+            movesAvailable = res.movesAvailable
             res = np.array(res.Value)
             # print(f'f _step(..., {action = }) ---> {res = }')
-            return ts.transition(observation=res, reward=np.max(res))
+            if movesAvailable:
+                return ts.transition(observation=res, reward=np.max(res))
+            else:
+                return ts.termination(observation=res, reward=np.max(res))
 
     # @log_before
     # @log_after
@@ -75,13 +75,13 @@ class Game2048Env(PyEnvironment):
             res = stub.reset(Empty())
             res = np.array(res.Value)
             # print(f'_reset(...) ---> {res = }')
-
             return ts.restart(observation=res, reward_spec=self.reward_spec())
 
     @log_before
     def action_spec(self) -> types.NestedArraySpec:
         """
         The `action_spec()` method returns the shape, data types, and allowed values of valid actions.
+        FIXME not all actions are always available
         """
         return tfa.specs.BoundedArraySpec(shape=(), dtype=int, name='action', minimum=0, maximum=3)
 

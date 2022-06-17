@@ -5,7 +5,6 @@ import (
 	"github.com/aaarrti/RL-2048/2048/internal/env"
 	util2 "github.com/aaarrti/RL-2048/2048/internal/util"
 	pb "github.com/aaarrti/RL-2048/proto/go"
-	grpczap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"log"
@@ -18,12 +17,12 @@ func main() {
 	listener, err := net.Listen("tcp", addr)
 	util2.Must(err)
 
-	logger := util2.CreateLogger()
+	//logger := util2.CreateLogger()
 
 	log.Printf("----> GRPC listeninng on %v\n\n", addr)
 
 	_server := grpc.NewServer(
-		grpc.UnaryInterceptor(grpczap.UnaryServerInterceptor(logger)),
+	//grpc.UnaryInterceptor(grpczap.UnaryServerInterceptor(logger)),
 	)
 	pb.RegisterEnvServiceServer(_server, &env.GameServer{})
 	reflection.Register(_server)

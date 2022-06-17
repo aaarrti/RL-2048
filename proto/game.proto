@@ -19,6 +19,7 @@ message MoveMessage {
 
 message GameState {
   repeated int32 Value = 1;
+  bool movesAvailable = 2;
 }
 
 service GameService {
