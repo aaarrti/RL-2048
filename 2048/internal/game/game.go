@@ -3,7 +3,7 @@ package game
 import (
 	"context"
 	"fmt"
-	"github.com/aaarrti/RL-2048/2048/util"
+	"github.com/aaarrti/RL-2048/2048/internal/util"
 	pb "github.com/aaarrti/RL-2048/proto/go"
 	grpczap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	"google.golang.org/grpc"

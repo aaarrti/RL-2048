@@ -2,8 +2,8 @@ package env
 
 import (
 	"context"
-	"github.com/aaarrti/RL-2048/2048/game"
-	"github.com/aaarrti/RL-2048/2048/util"
+	"github.com/aaarrti/RL-2048/2048/internal/game"
+	"github.com/aaarrti/RL-2048/2048/internal/util"
 	pb "github.com/aaarrti/RL-2048/proto/go"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
