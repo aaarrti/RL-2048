@@ -54,24 +54,29 @@ class Game2048Env(PyEnvironment):
     def set_state(self, state: Any) -> None:
         pass
 
-    @log_before
+    # @log_before
+    # @log_after
     def _step(self, action: types.NestedArray) -> ts.TimeStep:
         """
         Updates the environment according to action and returns a `TimeStep`.
         """
         with grpc.insecure_channel(self._uri()) as channel:
             stub = GameServiceStub(channel)
-            stub.doMove = log_after(stub.doMove)
             res = stub.doMove(MoveMessage(value=action))
-            return TimeStep(reward=max_arr(res.Value), observation=res.Value)
+            res = np.array(res.Value)
+            # print(f'f _step(..., {action = }) ---> {res = }')
+            return ts.transition(observation=res, reward=np.max(res))
 
+    # @log_before
+    # @log_after
     def _reset(self) -> ts.TimeStep:
         with grpc.insecure_channel(self._uri()) as channel:
             stub = GameServiceStub(channel)
-            stub.doMove = log_after(stub.doMove)
             res = stub.reset(Empty())
+            res = np.array(res.Value)
+            # print(f'_reset(...) ---> {res = }')
 
-            return ts.restart(observation=max_arr(res.Value), reward_spec=self.reward_spec())
+            return ts.restart(observation=res, reward_spec=self.reward_spec())
 
     @log_before
     def action_spec(self) -> types.NestedArraySpec:
