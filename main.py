@@ -5,15 +5,17 @@ from tf_agents.environments import tf_py_environment
 import tensorflow as tf
 
 from agent import *
+from game import GameGrid
 
 
 if __name__ == '__main__':
+    gm = GameGrid()
     #os.environ['GRPC_TRACE'] = 'all'
     #os.environ['GRPC_VERBOSITY'] = 'debug'
     # provision envs
-    py_env = provision_env()
-    train_py_env = provision_env()
-    eval_py_env = provision_env()
+    py_env = None
+    train_py_env = None
+    eval_py_env = None
 
     # convert to TCF env
     train_env = tf_py_environment.TFPyEnvironment(train_py_env)
