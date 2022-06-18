@@ -7,13 +7,12 @@ const (
 	DOWN
 	LEFT
 	RIGHT
-	NO_DIR
 )
 
-// Move : this is the function which takes care of the movement of the SBoard when a key is pressed
+// Move : this is the function which takes care of the movement of the Board when a key is pressed
 // Move left is the lowest level function which is implemented
 // other directions use Move left for their implementations
-func (b *SBoard) Move(dir Dir) {
+func (b *Board) Move(dir Dir) {
 	switch dir {
 	case LEFT:
 		b.moveLeft()
@@ -26,20 +25,20 @@ func (b *SBoard) Move(dir Dir) {
 	}
 }
 
-func (b *SBoard) moveLeft() {
+func (b *Board) moveLeft() {
 	for i := 0; i < _rows; i++ {
 		old := b.Matrix[i]
 		b.Matrix[i] = movedRow(old)
 	}
 }
 
-func (b *SBoard) moveUp() {
+func (b *Board) moveUp() {
 	b.reverseRows()
 	b.moveDown()
 	b.reverseRows()
 }
 
-func (b *SBoard) moveDown() {
+func (b *Board) moveDown() {
 	b.transpose()
 	b.moveLeft()
 	b.transpose()
@@ -47,7 +46,7 @@ func (b *SBoard) moveDown() {
 	b.transpose()
 }
 
-func (b *SBoard) moveRight() {
+func (b *Board) moveRight() {
 	b.reverse()
 	b.moveLeft()
 	b.reverse()
@@ -71,8 +70,8 @@ func movedRow(elems []int) []int {
 	return mergeElements(nonEmpty)
 }
 
-// reverse simply reverses each row of the SBoard
-func (b *SBoard) reverse() {
+// reverse simply reverses each row of the Board
+func (b *Board) reverse() {
 	for i := 0; i < _rows; i++ {
 		b.Matrix[i] = reverseRow(b.Matrix[i])
 	}
@@ -86,7 +85,7 @@ func (b *SBoard) reverse() {
 // [ 3 1 ]
 // [ 4 2 ]
 // see test for more clarity
-func (b *SBoard) transpose() {
+func (b *Board) transpose() {
 	ans := make([][]int, 0)
 	for i := 0; i < _rows; i++ {
 		ans = append(ans, make([]int, _cols))
@@ -105,7 +104,7 @@ func (b *SBoard) transpose() {
 //
 // [3 4]
 // [1 2]
-func (b *SBoard) reverseRows() {
+func (b *Board) reverseRows() {
 	ans := make([][]int, 0)
 	for i := 0; i < _rows; i++ {
 		ans = append(ans, make([]int, _cols))

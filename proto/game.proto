@@ -20,9 +20,20 @@ message AllMoves {
   repeated MoveEnum Moves = 1;
 }
 
+message ScoreTuple {
+  int32 Max = 1;
+  int32 Total = 2;
+}
+
+
 message GameState {
   repeated int32 Value = 1;
   bool MovesAvailable = 2;
+  ScoreTuple Score = 3;
+}
+
+message StringMessage {
+  string Value = 1;
 }
 
 service GameService {
@@ -32,6 +43,8 @@ service GameService {
   rpc reset (google.protobuf.Empty) returns (GameState);
 
   rpc availableMoves (google.protobuf.Empty) returns (AllMoves);
+
+  rpc render (google.protobuf.Empty) returns (StringMessage);
 
 }
 

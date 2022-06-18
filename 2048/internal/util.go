@@ -25,7 +25,7 @@ func CreateLogger() *zap.Logger {
 	return _logger
 }
 
-func mapMove(enum pb.MoveEnum) Dir {
+func enumToDir(enum pb.MoveEnum) Dir {
 	switch enum {
 	case pb.MoveEnum_UP:
 		return UP
@@ -36,7 +36,24 @@ func mapMove(enum pb.MoveEnum) Dir {
 	case pb.MoveEnum_RIGHT:
 		return RIGHT
 	default:
-		return NO_DIR
+		log.Fatalf("Unknown move %v\n", enum)
+		return -1
+	}
+}
+
+func dirToEnum(dir Dir) pb.MoveEnum {
+	switch dir {
+	case UP:
+		return pb.MoveEnum_UP
+	case DOWN:
+		return pb.MoveEnum_DOWN
+	case LEFT:
+		return pb.MoveEnum_LEFT
+	case RIGHT:
+		return pb.MoveEnum_RIGHT
+	default:
+		log.Fatalf("Unknown move %v\n", dir)
+		return -1
 	}
 }
 
