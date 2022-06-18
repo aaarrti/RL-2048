@@ -2,11 +2,9 @@ from __future__ import print_function, with_statement, absolute_import, division
 
 from tf_agents.policies import policy_saver
 from tf_agents.environments import tf_py_environment
+import tensorflow as tf
 
-from internal.agent import *
-from internal.replay_buffer import *
-from internal.env import *
-import os
+from agent import *
 
 
 if __name__ == '__main__':
