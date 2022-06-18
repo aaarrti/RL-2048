@@ -13,13 +13,16 @@ enum MoveEnum {
 }
 
 message MoveMessage {
-  MoveEnum value = 1;
+  MoveEnum Value = 1;
 }
 
+message AllMoves {
+  repeated MoveEnum Moves = 1;
+}
 
 message GameState {
   repeated int32 Value = 1;
-  bool movesAvailable = 2;
+  bool MovesAvailable = 2;
 }
 
 service GameService {
@@ -27,6 +30,8 @@ service GameService {
   rpc doMove (MoveMessage) returns (GameState);
 
   rpc reset (google.protobuf.Empty) returns (GameState);
+
+  rpc availableMoves (google.protobuf.Empty) returns (AllMoves);
 
 }
 

@@ -1,10 +1,9 @@
-package game
+package internal
 
 import (
 	"errors"
 	"fmt"
 	"github.com/fatih/color"
-	"log"
 	"math/rand"
 	"time"
 )
@@ -71,26 +70,27 @@ func (b *SBoard) IsOver() bool {
 }
 
 func (b *SBoard) TakeInput() {
-	var dir Dir
-	dir, err := GetCharKeystroke()
-	if err != nil {
-		if errors.Is(err, errEndGame) {
-			b.over = true
-			return
-		} else {
-			log.Fatal("error while taking input for game: %v", err)
-			return
+	/*
+		var dir Dir
+		dir, err := GetCharKeystroke()
+		if err != nil {
+			if errors.Is(err, errEndGame) {
+				b.over = true
+				return
+			} else {
+				log.Fatal("error while taking input for game: %v", err)
+				return
+			}
 		}
-	}
-	if DebugLogLevel {
-		log.Printf("the dir is: %v \n", dir)
-	}
+		if DebugLogLevel {
+			log.Printf("the dir is: %v \n", dir)
+		}
 
-	if dir == NO_DIR {
-		// this makes pressing any keys other than Move-set doesn't make any change in the game
-		b.TakeInput() // retry to get a valid direction
-	}
-	b.Move(dir)
+		if dir == NO_DIR {
+			// this makes pressing any keys other than Move-set doesn't make any change in the game
+			b.TakeInput() // retry to get a valid direction
+		}
+		b.Move(dir)*/
 }
 
 // AddElement : it first finds the empty slots in the SBoard. They are the one with 0 value

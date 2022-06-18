@@ -1,9 +1,8 @@
-package game
+package internal
 
 import (
 	"context"
 	"fmt"
-	"github.com/aaarrti/RL-2048/2048/internal/util"
 	pb "github.com/aaarrti/RL-2048/proto/go"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -31,19 +30,19 @@ func NewServerGame() ServerGameType {
 func (s *ServerGameType) ServerGame(port int) {
 	addr := fmt.Sprintf("0.0.0.0:%v", port)
 	listener, err := net.Listen("tcp", addr)
-	util.Must(err)
+	Must(err)
 
 	//logger := util.CreateLogger()
 
 	log.Printf("----> GRPC serving Game on %v\n\n", addr)
 
 	_server := grpc.NewServer(
-		//grpc.UnaryInterceptor(grpczap.UnaryServerInterceptor(logger)),
+	//grpc.UnaryInterceptor(grpczap.UnaryServerInterceptor(logger)),
 	)
 	pb.RegisterGameServiceServer(_server, s)
 	reflection.Register(_server)
 	err = _server.Serve(listener)
-	util.Must(err)
+	Must(err)
 }
 
 func (s *ServerGameType) DoMove(ctx context.Context, in *pb.MoveMessage) (*pb.GameState, error) {
@@ -61,29 +60,4 @@ func (s *ServerGameType) DoMove(ctx context.Context, in *pb.MoveMessage) (*pb.Ga
 func (s *ServerGameType) Reset(context.Context, *emptypb.Empty) (*pb.GameState, error) {
 	s.game.(*SBoard).Matrix = s.ogMatrix
 	return &pb.GameState{Value: flattenMatrix(s.ogMatrix)}, nil
-}
-
-func mapMove(enum pb.MoveEnum) Dir {
-	switch enum {
-	case pb.MoveEnum_UP:
-		return UP
-	case pb.MoveEnum_DOWN:
-		return DOWN
-	case pb.MoveEnum_LEFT:
-		return LEFT
-	case pb.MoveEnum_RIGHT:
-		return RIGHT
-	default:
-		return NO_DIR
-	}
-}
-
-func flattenMatrix(matrix [][]int) []int32 {
-	var flatArr []int32
-	for _, row := range matrix {
-		for _, i := range row {
-			flatArr = append(flatArr, int32(i))
-		}
-	}
-	return flatArr
 }

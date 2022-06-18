@@ -1,3 +1,3 @@
-package util
+package internal
 
 const MainPort = 50055

@@ -2,8 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/aaarrti/RL-2048/2048/internal/env"
-	util2 "github.com/aaarrti/RL-2048/2048/internal/util"
+	"github.com/aaarrti/RL-2048/2048/internal"
 	pb "github.com/aaarrti/RL-2048/proto/go"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -13,9 +12,9 @@ import (
 
 func main() {
 
-	addr := fmt.Sprintf("0.0.0.0:%v", util2.MainPort)
+	addr := fmt.Sprintf("0.0.0.0:%v", internal.MainPort)
 	listener, err := net.Listen("tcp", addr)
-	util2.Must(err)
+	internal.Must(err)
 
 	//logger := util2.CreateLogger()
 
@@ -24,8 +23,8 @@ func main() {
 	_server := grpc.NewServer(
 	//grpc.UnaryInterceptor(grpczap.UnaryServerInterceptor(logger)),
 	)
-	pb.RegisterEnvServiceServer(_server, &env.GameServer{})
+	pb.RegisterEnvServiceServer(_server, &internal.GameServer{})
 	reflection.Register(_server)
 	err = _server.Serve(listener)
-	util2.Must(err)
+	internal.Must(err)
 }

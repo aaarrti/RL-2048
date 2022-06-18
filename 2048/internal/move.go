@@ -1,4 +1,4 @@
-package game
+package internal
 
 type Dir int
 
