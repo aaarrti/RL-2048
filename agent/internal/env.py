@@ -6,13 +6,8 @@ import tf_agents as tfa
 from tf_agents.environments import PyEnvironment
 from tf_agents.trajectories import time_step as ts
 from tf_agents.typing import types
-from google.protobuf.empty_pb2 import Empty
-import grpc
 
-from .config import game_base_uri, env_provisioner_uri
-from proto.python.env_pb2_grpc import EnvServiceStub
-from proto.python.game_pb2_grpc import GameServiceStub
-from proto.python.game_pb2 import MoveMessage
+
 from .util import *
 
 
@@ -50,32 +45,18 @@ class Game2048Env(PyEnvironment):
     def set_state(self, state: Any) -> None:
         pass
 
-    # @log_before
-    # @log_after
+    @log_before
+    @log_after
     def _step(self, action: types.NestedArray) -> ts.TimeStep:
         """
         Updates the environment according to action and returns a `TimeStep`.
         """
-        with grpc.insecure_channel(self._uri()) as channel:
-            stub = GameServiceStub(channel)
-            res = stub.doMove(MoveMessage(value=action))
-            movesAvailable = res.movesAvailable
-            res = np.array(res.Value)
-            # print(f'f _step(..., {action = }) ---> {res = }')
-            if movesAvailable:
-                return ts.transition(observation=res, reward=np.max(res))
-            else:
-                return ts.termination(observation=res, reward=np.max(res))
+        pass
 
-    # @log_before
-    # @log_after
+    @log_before
+    @log_after
     def _reset(self) -> ts.TimeStep:
-        with grpc.insecure_channel(self._uri()) as channel:
-            stub = GameServiceStub(channel)
-            res = stub.reset(Empty())
-            res = np.array(res.Value)
-            # print(f'_reset(...) ---> {res = }')
-            return ts.restart(observation=res, reward_spec=self.reward_spec())
+        pass
 
     @log_before
     def action_spec(self) -> types.NestedArraySpec:
@@ -84,11 +65,3 @@ class Game2048Env(PyEnvironment):
         FIXME not all actions are always available
         """
         return tfa.specs.BoundedArraySpec(shape=(), dtype=int, name='action', minimum=0, maximum=3)
-
-
-def provision_env() -> Game2048Env:
-    with grpc.insecure_channel(env_provisioner_uri, options=(('grpc.enable_http_proxy', 0),)) as channel:
-        stub = EnvServiceStub(channel)
-        res = stub.provisionEnvironment(Empty())
-        game = Game2048Env(port=res.value)
-        return game

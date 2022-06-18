@@ -12,7 +12,3 @@ num_eval_episodes = 200
 eval_interval = 1000
 
 fc_layer_params = (100, 50)
-
-env_provisioner_uri = 'host.docker.internal:50055'
-
-game_base_uri = 'host.docker.internal:'
