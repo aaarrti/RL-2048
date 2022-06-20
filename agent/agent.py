@@ -11,6 +11,7 @@ from tf_agents.environments import TFPyEnvironment, PyEnvironment
 
 from .config import *
 from .metrics import *
+from tf_agents.specs import tensor_spec
 
 
 def dense_layer(num_units: int):
@@ -21,23 +22,24 @@ def dense_layer(num_units: int):
                                  )
 
 
-def build_agent(train_step_counter: tf.Variable,
-                env: PyEnvironment,
-                fc_layer_param=(100, 50),
-                num_actions=4,
-                ):
-    dense_layers = [dense_layer(num_units) for num_units in fc_layer_param]
+def build_q_net(env: PyEnvironment, fc_layer_params=(100, 50)):
+    action_tensor_spec = tensor_spec.from_spec(env.action_spec())
+    num_actions = action_tensor_spec.maximum - action_tensor_spec.minimum + 1
+
+    dense_layers = [dense_layer(num_units) for num_units in fc_layer_params]
     q_values_layer = tf.keras.layers.Dense(
         num_actions,
         activation=None,
-        kernel_initializer=tf.keras.initializers.RandomUniform(minval=-0.03, maxval=0.03),
-        bias_initializer=tf.keras.initializers.Constant(-0.2)
-    )
-
+        kernel_initializer=tf.keras.initializers.RandomUniform(
+            minval=-0.03, maxval=0.03),
+        bias_initializer=tf.keras.initializers.Constant(-0.2))
     q_net = sequential.Sequential(dense_layers + [q_values_layer])
+    return q_net
 
-    ag = dqn_agent.DqnAgent(env.time_step_spec(),
-                            env.action_spec(),
+
+def build_agent(train_step_counter: tf.Variable, train_env: TFPyEnvironment, q_net):
+    ag = dqn_agent.DqnAgent(train_env.time_step_spec(),
+                            train_env.action_spec(),
                             q_network=q_net,
                             optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate),
                             td_errors_loss_fn=common.element_wise_squared_loss,
@@ -49,13 +51,13 @@ def build_agent(train_step_counter: tf.Variable,
 
 def train(agent: TFAgent,
           dataset: tf.data.Dataset,
-          train_py_env: TFPyEnvironment,
+          train_py_env: PyEnvironment,
           eval_env: TFPyEnvironment,
           env: PyEnvironment,
           rb_observer: ReverbAddTrajectoryObserver
           ):
     # (Optional) Optimize by wrapping some of the code in a graph using TF function.
-    # agent.train = common.function(agent.train, jit_compile=True)
+    agent.train = common.function(agent.train)
 
     # Reset the train step.
     agent.train_step_counter.assign(0)
@@ -102,7 +104,7 @@ def checkpoint_saver(agent: TFAgent,
                      global_step
                      ):
     train_checkpointer = common.Checkpointer(
-        ckpt_dir='../checkpoints',
+        ckpt_dir='checkpoints',
         max_to_keep=1,
         agent=agent,
         policy=agent.policy,

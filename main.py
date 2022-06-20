@@ -5,25 +5,29 @@ from tf_agents.environments import tf_py_environment
 import tensorflow as tf
 
 from agent import *
-from game import GameGrid
+from tf_agents.environments import suite_gym
+import gym_2048 # noqa
+import gym
+from tf_agents.specs import tensor_spec
+
+ENV_NAME = 'CartPole-v0'
 
 
 if __name__ == '__main__':
-    gm = GameGrid()
-    #os.environ['GRPC_TRACE'] = 'all'
-    #os.environ['GRPC_VERBOSITY'] = 'debug'
-    # provision envs
-    py_env = None
-    train_py_env = None
-    eval_py_env = None
 
     # convert to TCF env
+    env = suite_gym.load(ENV_NAME)
+    train_py_env = suite_gym.load(ENV_NAME)
+    eval_py_env = suite_gym.load(ENV_NAME)
+
     train_env = tf_py_environment.TFPyEnvironment(train_py_env)
     eval_env = tf_py_environment.TFPyEnvironment(eval_py_env)
 
     # build agent
     counter = tf.Variable(0)
-    agent = build_agent(train_step_counter=counter, env=py_env)
+
+    q_net = build_q_net(env)
+    agent = build_agent(train_step_counter=counter, train_env=train_env, q_net=q_net)
 
     # build replay buffer
     rb, obs = replay_buffer_observer(agent)
@@ -36,13 +40,13 @@ if __name__ == '__main__':
     train(
         agent=agent,
         dataset=ds,
-        train_py_env=train_env,
+        train_py_env=train_py_env,
         eval_env=eval_env,
-        env=py_env,
+        env=env,
         rb_observer=obs
     )
 
     # save until better days
     train_checkpointer.save(global_step)
     tf_policy_saver = policy_saver.PolicySaver(agent.policy)
-    tf_policy_saver.save('../policy')
+    tf_policy_saver.save('policy')

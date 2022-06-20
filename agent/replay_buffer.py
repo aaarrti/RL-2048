@@ -13,9 +13,11 @@ table_name = 'uniform_table'
 
 def replay_buffer_observer(agent: TFAgent) -> (ReverbReplayBuffer, ReverbAddTrajectoryObserver):
     replay_buffer_signature = tensor_spec.from_spec(
-        agent.collect_data_spec)
+        agent.collect_data_spec
+    )
     replay_buffer_signature = tensor_spec.add_outer_dim(
-        replay_buffer_signature)
+        replay_buffer_signature
+    )
 
     table = reverb.Table(
         table_name,
@@ -42,8 +44,7 @@ def replay_buffer_observer(agent: TFAgent) -> (ReverbReplayBuffer, ReverbAddTraj
 
 
 def as_dataset(rb: ReverbReplayBuffer):
-    dataset = rb.as_dataset(
+    return rb.as_dataset(
         num_parallel_calls=3,
         sample_batch_size=batch_size,
         num_steps=2).prefetch(3)
-    return dataset

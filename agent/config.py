@@ -9,6 +9,6 @@ learning_rate = 1e-3
 log_interval = 1
 
 num_eval_episodes = 200
-eval_interval = 1000
+eval_interval = 1
 
 fc_layer_params = (100, 50)
