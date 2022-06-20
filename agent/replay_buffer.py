@@ -21,7 +21,7 @@ def replay_buffer_observer(agent: TFAgent) -> (ReverbReplayBuffer, ReverbAddTraj
 
     table = reverb.Table(
         table_name,
-        max_size=replay_buffer_max_length,
+        max_size=REPLAY_BUFFER_MAX_LENGTH,
         sampler=reverb.selectors.Uniform(),
         remover=reverb.selectors.Fifo(),
         rate_limiter=reverb.rate_limiters.MinSize(1),
@@ -41,10 +41,3 @@ def replay_buffer_observer(agent: TFAgent) -> (ReverbReplayBuffer, ReverbAddTraj
         sequence_length=2)
 
     return replay_buffer, rb_observer
-
-
-def as_dataset(rb: ReverbReplayBuffer):
-    return rb.as_dataset(
-        num_parallel_calls=3,
-        sample_batch_size=batch_size,
-        num_steps=2).prefetch(3)

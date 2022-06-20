@@ -1,14 +1,15 @@
-num_iterations = 20000
+EPOCHS = 20
 
-initial_collect_steps = 100
-collect_steps_per_iteration = 1
-replay_buffer_max_length = 100000
 
-batch_size = 64
-learning_rate = 1e-3
-log_interval = 1
+COLLECT_STEPS_PER_EPOCH = 1
+REPLAY_BUFFER_MAX_LENGTH = 100000
 
-num_eval_episodes = 200
-eval_interval = 1
+BATCH_SIZE = 64
+LEARNING_RATE = 1e-3
 
-fc_layer_params = (100, 50)
+LOG_INTERVAL = 5
+EVAL_INTERVAL = 1
+
+NUM_EVAL_EPISODES = 2
+
+FC_LAYERS_PARAMETERS = (100, 50)

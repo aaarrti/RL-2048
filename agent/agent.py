@@ -2,16 +2,18 @@ import tensorflow as tf
 from tf_agents.agents import TFAgent
 from tf_agents.agents.dqn import dqn_agent
 from tf_agents.networks import sequential
-from tf_agents.policies import py_tf_eager_policy
+
+from .metrics import *
 from tf_agents.utils import common
 from tqdm import tqdm
 from tf_agents.replay_buffers import ReverbAddTrajectoryObserver, ReverbReplayBuffer
-from tf_agents.drivers import py_driver
-from tf_agents.environments import TFPyEnvironment, PyEnvironment
+
+from tf_agents.environments import PyEnvironment, TFPyEnvironment
 
 from .config import *
 from .metrics import *
 from tf_agents.specs import tensor_spec
+
 
 
 def dense_layer(num_units: int):
@@ -22,11 +24,11 @@ def dense_layer(num_units: int):
                                  )
 
 
-def build_q_net(env: PyEnvironment, fc_layer_params=(100, 50)):
+def build_q_net(env: PyEnvironment):
     action_tensor_spec = tensor_spec.from_spec(env.action_spec())
     num_actions = action_tensor_spec.maximum - action_tensor_spec.minimum + 1
 
-    dense_layers = [dense_layer(num_units) for num_units in fc_layer_params]
+    dense_layers = [dense_layer(num_units) for num_units in FC_LAYERS_PARAMETERS]
     q_values_layer = tf.keras.layers.Dense(
         num_actions,
         activation=None,
@@ -37,52 +39,44 @@ def build_q_net(env: PyEnvironment, fc_layer_params=(100, 50)):
     return q_net
 
 
-def build_agent(train_step_counter: tf.Variable, train_env: TFPyEnvironment, q_net):
+def build_agent(train_env: TFPyEnvironment, q_net: tf.keras.Model):
     ag = dqn_agent.DqnAgent(train_env.time_step_spec(),
                             train_env.action_spec(),
                             q_network=q_net,
-                            optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate),
+                            optimizer=tf.keras.optimizers.Adam(learning_rate=LEARNING_RATE),
                             td_errors_loss_fn=common.element_wise_squared_loss,
-                            train_step_counter=train_step_counter
+                            train_step_counter=tf.Variable(0)
                             )
     ag.initialize()
     return ag
 
 
-def collect_episode(environment, policy, num_episodes, rb_observer):
-    driver = py_driver.PyDriver(
-        environment,
-        py_tf_eager_policy.PyTFEagerPolicy(
-            policy, use_tf_function=True),
-        [rb_observer],
-        max_episodes=num_episodes)
-    initial_time_step = environment.reset()
-    driver.run(initial_time_step)
+
 
 
 def train(agent: TFAgent,
           train_py_env: PyEnvironment,
           eval_env: TFPyEnvironment,
           rb_observer: ReverbAddTrajectoryObserver,
-          replay_buffer
+          replay_buffer: ReverbReplayBuffer
           ):
     # (Optional) Optimize by wrapping some of the code in a graph using TF function.
-    agent.train = common.function(agent.train)
+    agent.train = common.function(agent.train, jit_compile=True)
 
     # Reset the train step.
     agent.train_step_counter.assign(0)
 
     # Evaluate the agent's policy once before training.
-    avg_return = compute_avg_return(eval_env, agent.policy, num_eval_episodes)
+    avg_return = compute_avg_return(eval_env, agent.policy)
     returns = [avg_return]
 
-    for _ in tqdm(range(num_iterations)):
+    for _ in tqdm(range(EPOCHS)):
         # Collect a few episodes using collect_policy and save to the replay buffer.
         collect_episode(
-            train_py_env, agent.collect_policy, collect_steps_per_iteration, rb_observer)
+            train_py_env, agent.collect_policy, rb_observer)
 
         # Use data from the buffer and update the agent's network.
-        iterator = iter(replay_buffer.as_dataset(sample_batch_size=1))
+        iterator = iter(replay_buffer.as_dataset(sample_batch_size=BATCH_SIZE))
         trajectories, _ = next(iterator)
         train_loss = agent.train(experience=trajectories)
 
@@ -90,11 +84,11 @@ def train(agent: TFAgent,
 
         step = agent.train_step_counter.numpy()
 
-        if step % log_interval == 0:
+        if step % LOG_INTERVAL == 0:
             print('step = {0}: loss = {1}'.format(step, train_loss.loss))
 
-        if step % eval_interval == 0:
-            avg_return = compute_avg_return(eval_env, agent.policy, num_eval_episodes)
+        if step % EVAL_INTERVAL == 0:
+            avg_return = compute_avg_return(eval_env, agent.policy)
             print('step = {0}: Average Return = {1}'.format(step, avg_return))
             returns.append(avg_return)
 
