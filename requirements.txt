@@ -1,4 +1,5 @@
 tf-agents[reverb]
 tqdm
-gym-2048
+gym
 reverb
+gym-2048

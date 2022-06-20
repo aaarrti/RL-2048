@@ -21,6 +21,16 @@ def dense_layer(num_units: int):
                                  )
 
 
+class SeqWorkaround(sequential.Sequential):
+
+    def create_variables(self, input_tensor_spec=None, **kwargs):
+        if input_tensor_spec == tfa.specs.BoundedTensorSpec(shape=(4, 4), dtype=tf.int64, name='observation', minimum=2, maximum=4294967296):
+            print('here')
+            return super().create_variables(tfa.specs.BoundedTensorSpec(shape=(4,), dtype=tf.int64, name='observation', minimum=2, maximum=4294967296))
+        else:
+            return super().create_variables(input_tensor_spec, **kwargs)
+
+
 def build_agent(env: PyEnvironment, train_env: TFPyEnvironment):
     action_tensor_spec = tensor_spec.from_spec(env.action_spec())
     num_actions = action_tensor_spec.maximum - action_tensor_spec.minimum + 1
@@ -31,7 +41,7 @@ def build_agent(env: PyEnvironment, train_env: TFPyEnvironment):
         activation=None,
         kernel_initializer=tf.keras.initializers.RandomUniform(minval=-0.03, maxval=0.03),
         bias_initializer=tf.keras.initializers.Constant(-0.2))
-    q_net = sequential.Sequential(dense_layers + [q_values_layer])
+    q_net = SeqWorkaround(dense_layers + [q_values_layer])
 
     ag = dqn_agent.DqnAgent(train_env.time_step_spec(),
                             train_env.action_spec(),
