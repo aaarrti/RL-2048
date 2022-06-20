@@ -11,20 +11,15 @@ from agent import *
 
 if __name__ == '__main__':
     print(f'{tf.version.VERSION = }')
-    env = suite_gym.load(ENV_NAME)
 
-    # convert to TCF env
+    env = suite_gym.load(ENV_NAME)
     train_py_env = suite_gym.load(ENV_NAME)
     eval_py_env = suite_gym.load(ENV_NAME)
 
     train_env = tf_py_environment.TFPyEnvironment(train_py_env)
     eval_env = tf_py_environment.TFPyEnvironment(eval_py_env)
 
-    # build agent
-    counter = tf.Variable(0)
-
-    q_net = build_q_net(env)
-    agent = build_agent(train_env=train_env, q_net=q_net)
+    agent = build_agent(env, train_env)
 
     # build replay buffer
     rb, obs = replay_buffer_observer(agent)

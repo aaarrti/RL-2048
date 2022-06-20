@@ -1,6 +1,8 @@
+import tf_agents.typing.types
 from tqdm import tqdm
 
 import tensorflow as tf
+import tf_agents as tfa
 from tf_agents.agents import TFAgent
 from tf_agents.agents.dqn import dqn_agent
 from tf_agents.networks import sequential
@@ -19,7 +21,7 @@ def dense_layer(num_units: int):
                                  )
 
 
-def build_q_net(env: PyEnvironment):
+def build_agent(env: PyEnvironment, train_env: TFPyEnvironment):
     action_tensor_spec = tensor_spec.from_spec(env.action_spec())
     num_actions = action_tensor_spec.maximum - action_tensor_spec.minimum + 1
 
@@ -27,20 +29,17 @@ def build_q_net(env: PyEnvironment):
     q_values_layer = tf.keras.layers.Dense(
         num_actions,
         activation=None,
-        kernel_initializer=tf.keras.initializers.RandomUniform(
-            minval=-0.03, maxval=0.03),
+        kernel_initializer=tf.keras.initializers.RandomUniform(minval=-0.03, maxval=0.03),
         bias_initializer=tf.keras.initializers.Constant(-0.2))
     q_net = sequential.Sequential(dense_layers + [q_values_layer])
-    return q_net
 
-
-def build_agent(train_env: TFPyEnvironment, q_net: tf.keras.Model):
     ag = dqn_agent.DqnAgent(train_env.time_step_spec(),
                             train_env.action_spec(),
                             q_network=q_net,
                             optimizer=tf.keras.optimizers.Adam(learning_rate=LEARNING_RATE),
                             td_errors_loss_fn=common.element_wise_squared_loss,
-                            train_step_counter=tf.Variable(0)
+                            train_step_counter=tf.Variable(0),
+                            debug_summaries=True,
                             )
     ag.initialize()
     return ag

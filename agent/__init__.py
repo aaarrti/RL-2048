@@ -1,3 +1,3 @@
-from .agent import build_agent, checkpoint_saver, train, build_q_net
+from .agent import build_agent, checkpoint_saver, train
 from .replay_buffer import replay_buffer_observer
 from .constants import *
