@@ -1,19 +1,14 @@
+from tqdm import tqdm
+
 import tensorflow as tf
 from tf_agents.agents import TFAgent
 from tf_agents.agents.dqn import dqn_agent
 from tf_agents.networks import sequential
-
-from .metrics import *
 from tf_agents.utils import common
-from tqdm import tqdm
-from tf_agents.replay_buffers import ReverbAddTrajectoryObserver, ReverbReplayBuffer
-
-from tf_agents.environments import PyEnvironment, TFPyEnvironment
-
-from .config import *
-from .metrics import *
+from tf_agents.replay_buffers import ReverbReplayBuffer
 from tf_agents.specs import tensor_spec
 
+from .metrics import *
 
 
 def dense_layer(num_units: int):
@@ -49,9 +44,6 @@ def build_agent(train_env: TFPyEnvironment, q_net: tf.keras.Model):
                             )
     ag.initialize()
     return ag
-
-
-
 
 
 def train(agent: TFAgent,

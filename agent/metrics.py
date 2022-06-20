@@ -4,7 +4,7 @@ from tf_agents.replay_buffers import ReverbAddTrajectoryObserver
 from tf_agents.policies import py_tf_eager_policy
 from tf_agents.drivers import py_driver
 
-from .config import *
+from .constants import *
 
 
 def compute_avg_return(environment: TFPyEnvironment, policy: TFPolicy):

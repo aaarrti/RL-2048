@@ -1,14 +1,13 @@
 from __future__ import print_function, with_statement, absolute_import, division
 
-from tf_agents.policies import policy_saver
-from tf_agents.environments import tf_py_environment
+import gym_2048 # noqa
 import tensorflow as tf
 
-from agent import *
+from tf_agents.policies import policy_saver
+from tf_agents.environments import tf_py_environment
 from tf_agents.environments import suite_gym
-import gym_2048 # noqa
 
-ENV_NAME = 'CartPole-v0'
+from agent import *
 
 if __name__ == '__main__':
     print(f'{tf.version.VERSION = }')

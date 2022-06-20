@@ -1,14 +1,11 @@
+import reverb
+
 from tf_agents.specs import tensor_spec
 from tf_agents.agents import TFAgent
-import reverb
 from tf_agents.replay_buffers import reverb_replay_buffer, ReverbReplayBuffer, ReverbAddTrajectoryObserver
 from tf_agents.replay_buffers import reverb_utils
 
-
-from .config import *
-
-
-table_name = 'uniform_table'
+from .constants import *
 
 
 def replay_buffer_observer(agent: TFAgent) -> (ReverbReplayBuffer, ReverbAddTrajectoryObserver):
@@ -20,7 +17,7 @@ def replay_buffer_observer(agent: TFAgent) -> (ReverbReplayBuffer, ReverbAddTraj
     )
 
     table = reverb.Table(
-        table_name,
+        TABLE_NAME,
         max_size=REPLAY_BUFFER_MAX_LENGTH,
         sampler=reverb.selectors.Uniform(),
         remover=reverb.selectors.Fifo(),
@@ -31,13 +28,13 @@ def replay_buffer_observer(agent: TFAgent) -> (ReverbReplayBuffer, ReverbAddTraj
 
     replay_buffer = reverb_replay_buffer.ReverbReplayBuffer(
         agent.collect_data_spec,
-        table_name=table_name,
+        table_name=TABLE_NAME,
         sequence_length=2,
         local_server=reverb_server
     )
     rb_observer = reverb_utils.ReverbAddTrajectoryObserver(
         replay_buffer.py_client,
-        table_name,
+        TABLE_NAME,
         sequence_length=2)
 
     return replay_buffer, rb_observer
