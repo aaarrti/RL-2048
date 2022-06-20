@@ -1,3 +1,6 @@
 tf-agents[reverb]
 tqdm
 gym-2048
+pyglet
+pyvirtualdisplay
+imageio==2.4.0

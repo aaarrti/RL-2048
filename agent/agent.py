@@ -49,12 +49,22 @@ def build_agent(train_step_counter: tf.Variable, train_env: TFPyEnvironment, q_n
     return ag
 
 
+def collect_episode(environment, policy, num_episodes, rb_observer):
+    driver = py_driver.PyDriver(
+        environment,
+        py_tf_eager_policy.PyTFEagerPolicy(
+            policy, use_tf_function=True),
+        [rb_observer],
+        max_episodes=num_episodes)
+    initial_time_step = environment.reset()
+    driver.run(initial_time_step)
+
+
 def train(agent: TFAgent,
-          dataset: tf.data.Dataset,
           train_py_env: PyEnvironment,
           eval_env: TFPyEnvironment,
-          env: PyEnvironment,
-          rb_observer: ReverbAddTrajectoryObserver
+          rb_observer: ReverbAddTrajectoryObserver,
+          replay_buffer
           ):
     # (Optional) Optimize by wrapping some of the code in a graph using TF function.
     agent.train = common.function(agent.train)
@@ -66,32 +76,22 @@ def train(agent: TFAgent,
     avg_return = compute_avg_return(eval_env, agent.policy, num_eval_episodes)
     returns = [avg_return]
 
-    # Reset the environment.
-    time_step = train_py_env.reset()
-
-    # Create a driver to collect experience.
-    collect_driver = py_driver.PyDriver(
-        env,
-        py_tf_eager_policy.PyTFEagerPolicy(
-            agent.collect_policy, use_tf_function=True),
-        [rb_observer],
-        max_steps=collect_steps_per_iteration)
-
-    iterator = iter(dataset)
-
     for _ in tqdm(range(num_iterations)):
+        # Collect a few episodes using collect_policy and save to the replay buffer.
+        collect_episode(
+            train_py_env, agent.collect_policy, collect_steps_per_iteration, rb_observer)
 
-        # Collect a few steps and save to the replay buffer.
-        time_step, _ = collect_driver.run(time_step)
+        # Use data from the buffer and update the agent's network.
+        iterator = iter(replay_buffer.as_dataset(sample_batch_size=1))
+        trajectories, _ = next(iterator)
+        train_loss = agent.train(experience=trajectories)
 
-        # Sample a batch of data from the buffer and update the agent's network.
-        experience, unused_info = next(iterator)
-        train_loss = agent.train(experience).loss
+        replay_buffer.clear()
 
         step = agent.train_step_counter.numpy()
 
         if step % log_interval == 0:
-            print('step = {0}: loss = {1}'.format(step, train_loss))
+            print('step = {0}: loss = {1}'.format(step, train_loss.loss))
 
         if step % eval_interval == 0:
             avg_return = compute_avg_return(eval_env, agent.policy, num_eval_episodes)
