@@ -1,5 +1,5 @@
 tf-agents[reverb]
 tqdm
-gym
 reverb
-gym-2048
+pygame
+pyvirtualdisplay
