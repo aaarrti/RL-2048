@@ -14,8 +14,8 @@ POLICY_DIR = 'policy'
 
 
 @click.command()
-@click.option('--train')
-@click.option('--play', default=True)
+@click.option('--train', default=True)
+@click.option('--play', default=False)
 def main(train, play):
     if train:
         train_main()
@@ -34,7 +34,7 @@ def train_main():
     train_env = tf_py_environment.TFPyEnvironment(train_py_env)
     eval_env = tf_py_environment.TFPyEnvironment(eval_py_env)
 
-    agent = build_agent(env, train_env)
+    agent = build_agent(env)
 
     # build replay buffer
     rb, obs = replay_buffer_observer(agent)

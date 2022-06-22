@@ -8,18 +8,19 @@ from tf_agents.typing import types
 from .game import Game
 from .util import *
 import numpy as np
-from threading import Thread, Lock
 
 
 class GameEnv(PyEnvironment):
 
     moves_depth = 0
-    MAX_MOVES_DEPTH = 10
-    mutex = Lock()
 
-    def __init__(self):
+    def __init__(self, max_depth=None):
+        """
+        :param max_depth: limit depth of moves for training
+        """
         super().__init__()
         self.game = Game()
+        self.max_depth = max_depth
 
     @log_after
     def observation_spec(self) -> types.NestedArraySpec:

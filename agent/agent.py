@@ -1,4 +1,3 @@
-import tf_agents.typing.types
 from tqdm import tqdm
 
 import tensorflow as tf
@@ -34,13 +33,11 @@ class SeqWorkaround(sequential.Sequential):
             return super().create_variables(input_tensor_spec, **kwargs)
 
 
-def build_agent(env: PyEnvironment, train_env: TFPyEnvironment):
-    action_tensor_spec = tensor_spec.from_spec(env.action_spec())
-    num_actions = 4
+def build_agent(train_env: TFPyEnvironment):
 
     dense_layers = [dense_layer(num_units) for num_units in FC_LAYERS_PARAMETERS]
     q_values_layer = tf.keras.layers.Dense(
-        num_actions,
+        4,
         activation=None,
         kernel_initializer=tf.keras.initializers.RandomUniform(minval=-0.03, maxval=0.03),
         bias_initializer=tf.keras.initializers.Constant(-0.2))
@@ -52,7 +49,7 @@ def build_agent(env: PyEnvironment, train_env: TFPyEnvironment):
                             optimizer=tf.keras.optimizers.Adam(learning_rate=LEARNING_RATE),
                             td_errors_loss_fn=common.element_wise_squared_loss,
                             train_step_counter=tf.Variable(0),
-                            debug_summaries=True,
+                            debug_summaries=True
                             )
     ag.initialize()
     return ag
@@ -79,7 +76,7 @@ def train_agent(agent: TFAgent,
         collect_episode(train_py_env, agent.collect_policy, rb_observer)
 
         # Use data from the buffer and update the agent's network.
-        iterator = iter(replay_buffer.as_dataset(sample_batch_size=2))
+        iterator = iter(replay_buffer.as_dataset(sample_batch_size=BATCH_SIZE))
         trajectories, _ = next(iterator)
         train_loss = agent.train(experience=trajectories)
 
