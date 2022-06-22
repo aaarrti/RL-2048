@@ -11,10 +11,11 @@ from agent import *
 from game import *
 
 POLICY_DIR = 'policy'
+STEP_DEPTH = 100
 
 
 @click.command()
-@click.option('--train', default=True)
+@click.option('--train', default=False)
 @click.option('--play', default=False)
 def main(train, play):
     if train:
@@ -26,15 +27,13 @@ def main(train, play):
 def train_main():
     print(f'{tf.version.VERSION = }')
 
-    env = GameEnv()
-
     train_py_env = GameEnv()
     eval_py_env = GameEnv()
 
     train_env = tf_py_environment.TFPyEnvironment(train_py_env)
     eval_env = tf_py_environment.TFPyEnvironment(eval_py_env)
 
-    agent = build_agent(env)
+    agent = build_agent(train_env)
 
     # build replay buffer
     rb, obs = replay_buffer_observer(agent)
@@ -64,7 +63,7 @@ def play_main():
     eval_env.render('human')
 
     while not time_step.is_last():
-        sleep(1)
+        #sleep(1)
         action_step = policy.action(time_step)
         time_step = eval_env.step(action_step.action)
         eval_env.render('human')

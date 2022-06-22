@@ -54,7 +54,9 @@ class GameEnv(PyEnvironment):
         self.game.do_move(move)
         new_score = self.game.score
         observation = np.asarray(self.game.observation).flatten()
-        if self.stuck or self.moves_depth == self.MAX_MOVES_DEPTH:
+
+        max_depth_reached = self.max_depth is not None and self.moves_depth == self.max_depth
+        if self.stuck or max_depth_reached:
             return ts.termination(observation=observation, reward=old_score - new_score)
         else:
             self.moves_depth = self.moves_depth + 1

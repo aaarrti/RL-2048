@@ -84,12 +84,10 @@ def train_agent(agent: TFAgent,
 
         step = agent.train_step_counter.numpy()
 
-        if step % LOG_INTERVAL == 0:
-            print('step = {0}: loss = {1}'.format(step, train_loss.loss))
-
         if step % EVAL_INTERVAL == 0:
+            print('\nstep = {0}: loss = {1}'.format(step, train_loss.loss))
             avg_return = compute_avg_return(eval_env, agent.policy)
-            print('step = {0}: Average Return = {1}'.format(step, avg_return))
+            print('\nstep = {0}: Average Return = {1}'.format(step, avg_return))
             returns.append(avg_return)
 
 

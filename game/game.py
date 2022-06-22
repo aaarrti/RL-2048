@@ -249,7 +249,7 @@ class Game:
 
     @property
     def stuck(self):
-        return not self.game.collapsible()
+        return len(self.game.emptiesSet) == 0
 
     def play(self):
 

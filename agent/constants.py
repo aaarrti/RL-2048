@@ -1,16 +1,20 @@
-EPOCHS = 20
+from os import environ
 
-COLLECT_STEPS_PER_EPOCH = 3
-REPLAY_BUFFER_MAX_LENGTH = 100000
 
-BATCH_SIZE = 32
-LEARNING_RATE = 1e-3
+EPOCHS = environ.get('EPOCHS', default=200)
 
-LOG_INTERVAL = 5
-EVAL_INTERVAL = 5
+COLLECT_STEPS_PER_EPOCH = environ.get('COLLECT_STEPS_PER_EPOCH', default=100)
 
-NUM_EVAL_EPISODES = 2
+REPLAY_BUFFER_MAX_LENGTH = environ.get('REPLAY_BUFFER_MAX_LENGTH', default=10000000)
 
-FC_LAYERS_PARAMETERS = [100, 50]
+BATCH_SIZE = environ.get('BATCH_SIZE', default=128)
 
-TABLE_NAME = 'uniform_table'
+LEARNING_RATE = environ.get('LEARNING_RATE', default=1e-3)
+
+EVAL_INTERVAL = environ.get('EVAL_INTERVAL', default=20)
+
+NUM_EVAL_EPISODES = environ.get('NUM_EVAL_EPISODES', default=5)
+
+FC_LAYERS_PARAMETERS = environ.get('FC_LAYERS_PARAMETERS', default=[1000, 750, 500, 250, 125, 100, 50])
+
+TABLE_NAME = environ.get('TABLE_NAME', default='uniform_table')
