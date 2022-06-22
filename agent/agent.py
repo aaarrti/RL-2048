@@ -33,7 +33,7 @@ class SeqWorkaround(sequential.Sequential):
 
 def build_agent(env: PyEnvironment, train_env: TFPyEnvironment):
     action_tensor_spec = tensor_spec.from_spec(env.action_spec())
-    num_actions = action_tensor_spec.maximum - action_tensor_spec.minimum + 1
+    num_actions = 4
 
     dense_layers = [dense_layer(num_units) for num_units in FC_LAYERS_PARAMETERS]
     q_values_layer = tf.keras.layers.Dense(
@@ -73,11 +73,10 @@ def train(agent: TFAgent,
 
     for _ in tqdm(range(EPOCHS)):
         # Collect a few episodes using collect_policy and save to the replay buffer.
-        collect_episode(
-            train_py_env, agent.collect_policy, rb_observer)
+        collect_episode(train_py_env, agent.collect_policy, rb_observer)
 
         # Use data from the buffer and update the agent's network.
-        iterator = iter(replay_buffer.as_dataset(sample_batch_size=BATCH_SIZE))
+        iterator = iter(replay_buffer.as_dataset(sample_batch_size=2))
         trajectories, _ = next(iterator)
         train_loss = agent.train(experience=trajectories)
 

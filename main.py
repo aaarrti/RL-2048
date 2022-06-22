@@ -7,26 +7,15 @@ from tf_agents.environments import tf_py_environment
 from tf_agents.environments import suite_gym
 
 from agent import *
-import gym_2048  # noqa
+from game import *
 
 if __name__ == '__main__':
     print(f'{tf.version.VERSION = }')
 
-    env = suite_gym.load(ENV_NAME)
-    try:
-        env.reset()
-    except AssertionError:
-        pass
-    train_py_env = suite_gym.load(ENV_NAME)
-    try:
-        train_py_env.reset()
-    except AssertionError:
-        pass
-    eval_py_env = suite_gym.load(ENV_NAME)
-    try:
-        eval_py_env.reset()
-    except AssertionError:
-        pass
+    env = GameEnv()
+
+    train_py_env = GameEnv()
+    eval_py_env = GameEnv()
 
     train_env = tf_py_environment.TFPyEnvironment(train_py_env)
     eval_env = tf_py_environment.TFPyEnvironment(eval_py_env)

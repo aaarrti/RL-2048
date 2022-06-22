@@ -4,14 +4,16 @@ import tf_agents.specs
 from tf_agents.environments import PyEnvironment
 from tf_agents.trajectories import time_step as ts
 from tf_agents.typing import types
-import tensorflow as tf
-from tf_agents.environments import suite_gym
 
-from game import Game
-from util import *
+from .game import Game
+from .util import *
+import numpy as np
 
 
 class GameEnv(PyEnvironment):
+
+    moves_depth = 0
+    MAX_MOVES_DEPTH = 10
 
     def __init__(self):
         super().__init__()
@@ -22,13 +24,11 @@ class GameEnv(PyEnvironment):
         In 2048 observation is a 2d array, namely board itself
         :return: 
         """
-        return tf_agents.specs.BoundedTensorSpec(shape=(4, 4), minimum=0, dtype=tf.int32, maximum=2048)
+        return tf_agents.specs.BoundedArraySpec(shape=(16,), minimum=0, dtype=int, name='observation_spec')
 
     @log_after
     def action_spec(self) -> types.NestedArraySpec:
-        moves = self.game.get_all_possible_moves()
-        int_moves = [map_key_to_int(i) for i in moves]
-        return tf.TensorSpec.from_tensor(tf.constant(int_moves))
+        return tf_agents.specs.BoundedArraySpec(shape=(), minimum=0, maximum=3, dtype=int, name='action_spec')
 
     @log_before
     def get_info(self) -> types.NestedArray:
@@ -42,22 +42,34 @@ class GameEnv(PyEnvironment):
     def set_state(self, state: Any) -> None:
         pass
 
-    @log_before
+    #@log_before
+    #@log_after
     def _step(self, action: types.NestedArray) -> ts.TimeStep:
         old_score = self.game.score
-        move = map_int_to_key(action.numpy())
+        move = map_int_to_key(action)
         self.game.do_move(move)
         new_score = self.game.score
-        return ts.transition(observation=self.game.observation, reward=old_score - new_score)
+        observation = np.asarray(self.game.observation).flatten()
+        if self.game.stuck or self.moves_depth == self.MAX_MOVES_DEPTH:
+            print('stuck')
+            return ts.termination(observation=observation, reward=old_score - new_score)
+        else:
+            self.moves_depth = self.moves_depth + 1
+            return ts.transition(observation=observation, reward=old_score - new_score)
 
     @log_before
+    @log_after
     def _reset(self) -> ts.TimeStep:
         self.game.reset()
-        return ts.restart(observation=self.game.observation)
+        observation = np.asarray(self.game.observation).flatten()
+        return ts.restart(observation=observation)
+
+    def stuck(self):
+        return self.game.stuck
 
 
-@log_before
-@log_after
+#@log_before
+#@log_after
 def map_int_to_key(n: int) -> str:
     if n == 0:
         return 'w'
@@ -69,8 +81,8 @@ def map_int_to_key(n: int) -> str:
         return 'd'
 
 
-@log_before
-@log_after
+#@log_before
+#@log_after
 def map_key_to_int(k: str) -> int:
     if k == 'w':
         return 0
@@ -80,16 +92,3 @@ def map_key_to_int(k: str) -> int:
         return 2
     if k == 'd':
         return 3
-
-
-if __name__ == '__main__':
-    gym = suite_gym.load('CartPole-v0')
-
-    env = GameEnv()
-
-    env.observation_spec()
-    env.action_spec()
-
-    env._reset()
-
-    print()

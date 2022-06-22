@@ -219,10 +219,10 @@ class Grid:
 
 
 class Game:
-    moves = {'w': 'Up',
-             'a': 'Left',
-             's': 'Down',
-             'd': 'Right'}
+    moves = {'w': 'up',
+             'a': 'left',
+             's': 'down',
+             'd': 'right'}
 
     def __init__(self, row=4, col=4, initial=2):
         self.game = Grid(row, col, initial)
@@ -239,7 +239,7 @@ class Game:
         print('\nScore: ' + str(self.game.score))
 
     def do_move(self, key):
-        move = getattr(self.game, 'collapse' + self.moves[key])
+        move = getattr(self.game, 'collapse_' + self.moves[key])
         collapsed = move()
         if collapsed:
             self.game.update_empties_set()
@@ -254,6 +254,10 @@ class Game:
             return list(self.moves.keys())
         else:
             return []
+
+    @property
+    def stuck(self):
+        return not self.game.collapsible()
 
     def play(self):
 
