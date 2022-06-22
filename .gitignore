@@ -4,4 +4,5 @@ agent/policy
 agent/checkpoints
 agent/history.pickle
 .ipynb_checkpoints
+__pycache__
 */__pycache__

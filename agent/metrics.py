@@ -1,3 +1,5 @@
+from __future__ import division
+
 from tf_agents.environments import TFPyEnvironment, PyEnvironment
 from tf_agents.policies import TFPolicy
 from tf_agents.replay_buffers import ReverbAddTrajectoryObserver

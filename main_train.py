@@ -1,35 +1,24 @@
-from __future__ import print_function, with_statement, absolute_import, division
+from __future__ import print_function, with_statement, absolute_import, division, annotations
 
 import tensorflow as tf
 
 from tf_agents.policies import policy_saver
 from tf_agents.environments import tf_py_environment
-import click
-from time import sleep
+
 
 from agent import *
 from game import *
 
-POLICY_DIR = 'policy'
-STEP_DEPTH = None
 
+POLICY_DIR = 'agent/policy'
+MAX_DEPTH = 1000
 
-@click.command()
-@click.option('--train', default=False)
-@click.option('--play', default=False)
-def main(train, play):
-    if train:
-        train_main()
-    if play:
-        play_main()
-
-
-def train_main():
+if __name__ == '__main__':
     print(f'{tf.version.VERSION = }')
     print(f'Devices => {tf.config.list_physical_devices()}')
 
-    train_py_env = GameEnv(max_depth=STEP_DEPTH)
-    eval_py_env = GameEnv(max_depth=STEP_DEPTH)
+    train_py_env = GameEnv(max_depth=MAX_DEPTH)
+    eval_py_env = GameEnv(max_depth=MAX_DEPTH)
 
     train_env = tf_py_environment.TFPyEnvironment(train_py_env)
     eval_env = tf_py_environment.TFPyEnvironment(eval_py_env)
@@ -56,19 +45,3 @@ def train_main():
     tf_policy_saver = policy_saver.PolicySaver(agent.policy)
     tf_policy_saver.save(POLICY_DIR)
 
-
-def play_main():
-    policy = tf.saved_model.load(POLICY_DIR)
-    eval_env = tf_py_environment.TFPyEnvironment(GameEnv())
-    time_step = eval_env.reset()
-    eval_env.render('human')
-
-    while not time_step.is_last():
-        sleep(1)
-        action_step = policy.action(time_step)
-        time_step = eval_env.step(action_step.action)
-        eval_env.render('human')
-
-
-if __name__ == '__main__':
-    main()

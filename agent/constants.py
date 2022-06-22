@@ -3,7 +3,7 @@ from os import environ
 
 EPOCHS = environ.get('EPOCHS', default=200)
 
-COLLECT_STEPS_PER_EPOCH = environ.get('COLLECT_STEPS_PER_EPOCH', default=100)
+COLLECT_STEPS_PER_EPOCH = environ.get('COLLECT_STEPS_PER_EPOCH', default=5)
 
 REPLAY_BUFFER_MAX_LENGTH = environ.get('REPLAY_BUFFER_MAX_LENGTH', default=10000000)
 
@@ -16,3 +16,5 @@ NUM_EVAL_EPISODES = environ.get('NUM_EVAL_EPISODES', default=5)
 FC_LAYERS_PARAMETERS = environ.get('FC_LAYERS_PARAMETERS', default=[100, 50])
 
 TABLE_NAME = environ.get('TABLE_NAME', default='uniform_table')
+
+CHECKPOINT_DIR = 'agent/checkpoints'

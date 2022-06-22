@@ -1,5 +1,9 @@
+from __future__ import print_function, with_statement, absolute_import, annotations
+
+
 from typing import Any, Text, Optional
 
+import numpy as np
 import tf_agents.specs
 from tf_agents.environments import PyEnvironment
 from tf_agents.trajectories import time_step as ts
@@ -7,7 +11,6 @@ from tf_agents.typing import types
 
 from .game import Game
 from util import *
-import numpy as np
 
 
 class GameEnv(PyEnvironment):

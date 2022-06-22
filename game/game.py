@@ -249,7 +249,7 @@ class Game:
 
     @property
     def stuck(self):
-        return len(self.game.emptiesSet) == 0
+        return len(self.game.emptiesSet) == 0 and not self.game.collapsible()
 
     def play(self):
 
@@ -291,8 +291,3 @@ class Game:
 
     def render(self):
         self.game.draw_grid()
-
-
-if __name__ == '__main__':
-    g = Game()
-    g.play()

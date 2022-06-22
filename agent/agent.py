@@ -7,8 +7,8 @@ from tf_agents.agents.dqn import dqn_agent
 from tf_agents.networks import sequential
 from tf_agents.utils import common
 from tf_agents.replay_buffers import ReverbReplayBuffer
-from util import *
 
+from util import *
 from .metrics import *
 
 
@@ -99,7 +99,7 @@ def train_agent(agent: TFAgent,
     save_pickle({
         'return': returns,
         'loss': losses
-    }, 'history')
+    }, 'agent/history')
 
 
 def checkpoint_saver(agent: TFAgent,
@@ -107,7 +107,7 @@ def checkpoint_saver(agent: TFAgent,
                      global_step
                      ):
     train_checkpointer = common.Checkpointer(
-        ckpt_dir='checkpoints',
+        ckpt_dir=CHECKPOINT_DIR,
         max_to_keep=1,
         agent=agent,
         policy=agent.policy,
