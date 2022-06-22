@@ -6,7 +6,7 @@ from tf_agents.trajectories import time_step as ts
 from tf_agents.typing import types
 
 from .game import Game
-from .util import *
+from util import *
 import numpy as np
 
 

@@ -2,3 +2,5 @@
 .idea
 agent/policy
 agent/checkpoints
+agent/history.pickle
+.ipynb_checkpoints

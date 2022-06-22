@@ -11,7 +11,7 @@ from agent import *
 from game import *
 
 POLICY_DIR = 'policy'
-STEP_DEPTH = 100
+STEP_DEPTH = None
 
 
 @click.command()
@@ -26,9 +26,10 @@ def main(train, play):
 
 def train_main():
     print(f'{tf.version.VERSION = }')
+    print(f'Devices => {tf.config.list_physical_devices()}')
 
-    train_py_env = GameEnv()
-    eval_py_env = GameEnv()
+    train_py_env = GameEnv(max_depth=STEP_DEPTH)
+    eval_py_env = GameEnv(max_depth=STEP_DEPTH)
 
     train_env = tf_py_environment.TFPyEnvironment(train_py_env)
     eval_env = tf_py_environment.TFPyEnvironment(eval_py_env)
@@ -63,7 +64,7 @@ def play_main():
     eval_env.render('human')
 
     while not time_step.is_last():
-        #sleep(1)
+        sleep(1)
         action_step = policy.action(time_step)
         time_step = eval_env.step(action_step.action)
         eval_env.render('human')

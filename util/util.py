@@ -1,5 +1,6 @@
 import inspect
 import functools
+import pickle
 
 
 def log_before(func):
@@ -25,3 +26,14 @@ def log_after(func):
         return retval
 
     return wrapper
+
+
+def save_pickle(obj, fpath):
+    with open(f'{fpath}.pickle', 'wb') as outp:
+        pickle.dump(obj, outp, pickle.HIGHEST_PROTOCOL)
+
+
+def load_pickle(path):
+    with open(f'{path}.pickle', "rb") as file:
+        obj = pickle.load(file)
+        return obj

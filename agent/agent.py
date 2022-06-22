@@ -7,7 +7,7 @@ from tf_agents.agents.dqn import dqn_agent
 from tf_agents.networks import sequential
 from tf_agents.utils import common
 from tf_agents.replay_buffers import ReverbReplayBuffer
-from tf_agents.specs import tensor_spec
+from util import *
 
 from .metrics import *
 
@@ -34,7 +34,6 @@ class SeqWorkaround(sequential.Sequential):
 
 
 def build_agent(train_env: TFPyEnvironment):
-
     dense_layers = [dense_layer(num_units) for num_units in FC_LAYERS_PARAMETERS]
     q_values_layer = tf.keras.layers.Dense(
         4,
@@ -43,10 +42,15 @@ def build_agent(train_env: TFPyEnvironment):
         bias_initializer=tf.keras.initializers.Constant(-0.2))
     q_net = SeqWorkaround(dense_layers + [q_values_layer])
 
+    # def decayed_learning_rate(step):
+    #   return initial_learning_rate * decay_rate ^ (step / decay_steps)
+
+    lr = tf.keras.optimizers.schedules.ExponentialDecay(LEARNING_RATE, 1000, 0.9, staircase=True, name=None)
+
     ag = dqn_agent.DqnAgent(train_env.time_step_spec(),
                             train_env.action_spec(),
                             q_network=q_net,
-                            optimizer=tf.keras.optimizers.Adam(learning_rate=LEARNING_RATE),
+                            optimizer=tf.keras.optimizers.Adam(learning_rate=lr),
                             td_errors_loss_fn=common.element_wise_squared_loss,
                             train_step_counter=tf.Variable(0),
                             debug_summaries=True
@@ -70,6 +74,7 @@ def train_agent(agent: TFAgent,
     # Evaluate the agent's policy once before training.
     avg_return = compute_avg_return(eval_env, agent.policy)
     returns = [avg_return]
+    losses = []
 
     for _ in tqdm(range(EPOCHS)):
         # Collect a few episodes using collect_policy and save to the replay buffer.
@@ -79,16 +84,22 @@ def train_agent(agent: TFAgent,
         iterator = iter(replay_buffer.as_dataset(sample_batch_size=BATCH_SIZE))
         trajectories, _ = next(iterator)
         train_loss = agent.train(experience=trajectories)
-
         replay_buffer.clear()
 
-        step = agent.train_step_counter.numpy()
+        loss = train_loss.loss.numpy()
+        losses.append(loss)
+        avg_return = compute_avg_return(eval_env, agent.policy)
+        returns.append(avg_return)
 
-        if step % EVAL_INTERVAL == 0:
-            print('\nstep = {0}: loss = {1}'.format(step, train_loss.loss))
-            avg_return = compute_avg_return(eval_env, agent.policy)
-            print('\nstep = {0}: Average Return = {1}'.format(step, avg_return))
-            returns.append(avg_return)
+        # print('-' * 40)
+        # step = agent.train_step_counter.numpy()
+        # print('step = {0}: loss = {1}'.format(step, loss))
+        #print('step = {0}: Average Return = {1}'.format(step, avg_return))
+
+    save_pickle({
+        'return': returns,
+        'loss': losses
+    }, 'history')
 
 
 def checkpoint_saver(agent: TFAgent,
