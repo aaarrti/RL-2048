@@ -1,5 +1,4 @@
 tf-agents[reverb]
 tqdm
 reverb
-pygame
-pyvirtualdisplay
+click

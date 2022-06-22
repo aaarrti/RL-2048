@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Text, Optional
 
 import tf_agents.specs
 from tf_agents.environments import PyEnvironment
@@ -8,17 +8,20 @@ from tf_agents.typing import types
 from .game import Game
 from .util import *
 import numpy as np
+from threading import Thread, Lock
 
 
 class GameEnv(PyEnvironment):
 
     moves_depth = 0
     MAX_MOVES_DEPTH = 10
+    mutex = Lock()
 
     def __init__(self):
         super().__init__()
         self.game = Game()
 
+    @log_after
     def observation_spec(self) -> types.NestedArraySpec:
         """
         In 2048 observation is a 2d array, namely board itself
@@ -50,22 +53,25 @@ class GameEnv(PyEnvironment):
         self.game.do_move(move)
         new_score = self.game.score
         observation = np.asarray(self.game.observation).flatten()
-        if self.game.stuck or self.moves_depth == self.MAX_MOVES_DEPTH:
-            print('stuck')
+        if self.stuck or self.moves_depth == self.MAX_MOVES_DEPTH:
             return ts.termination(observation=observation, reward=old_score - new_score)
         else:
             self.moves_depth = self.moves_depth + 1
             return ts.transition(observation=observation, reward=old_score - new_score)
 
-    @log_before
-    @log_after
+    #@log_before
+    #@log_after
     def _reset(self) -> ts.TimeStep:
         self.game.reset()
         observation = np.asarray(self.game.observation).flatten()
         return ts.restart(observation=observation)
 
+    @property
     def stuck(self):
         return self.game.stuck
+
+    def render(self, mode: Text = 'rgb_array') -> Optional[types.NestedArray]:
+        return self.game.render()
 
 
 #@log_before

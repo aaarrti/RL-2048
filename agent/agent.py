@@ -24,9 +24,12 @@ def dense_layer(num_units: int):
 class SeqWorkaround(sequential.Sequential):
 
     def create_variables(self, input_tensor_spec=None, **kwargs):
-        if input_tensor_spec == tfa.specs.BoundedTensorSpec(shape=(4, 4), dtype=tf.int64, name='observation', minimum=2, maximum=4294967296):
+        if input_tensor_spec == tfa.specs.BoundedTensorSpec(shape=(4, 4), dtype=tf.int64, name='observation', minimum=2,
+                                                            maximum=4294967296):
             print('here')
-            return super().create_variables(tfa.specs.BoundedTensorSpec(shape=(4,), dtype=tf.int64, name='observation', minimum=2, maximum=4294967296))
+            return super().create_variables(
+                tfa.specs.BoundedTensorSpec(shape=(4,), dtype=tf.int64, name='observation', minimum=2,
+                                            maximum=4294967296))
         else:
             return super().create_variables(input_tensor_spec, **kwargs)
 
@@ -55,12 +58,12 @@ def build_agent(env: PyEnvironment, train_env: TFPyEnvironment):
     return ag
 
 
-def train(agent: TFAgent,
-          train_py_env: PyEnvironment,
-          eval_env: TFPyEnvironment,
-          rb_observer: ReverbAddTrajectoryObserver,
-          replay_buffer: ReverbReplayBuffer
-          ):
+def train_agent(agent: TFAgent,
+                train_py_env: PyEnvironment,
+                eval_env: TFPyEnvironment,
+                rb_observer: ReverbAddTrajectoryObserver,
+                replay_buffer: ReverbReplayBuffer
+                ):
     # (Optional) Optimize by wrapping some of the code in a graph using TF function.
     agent.train = common.function(agent.train, jit_compile=True)
 

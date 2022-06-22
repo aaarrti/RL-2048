@@ -61,16 +61,16 @@ class Grid:
     def draw_grid(self):
         # This function draws the grid representing the state of the game
         # grid
-
+        print('-' * 25)
         for row_index in range(self.row):
-            line = '\t|'
+            line = '|'
             for col_index in range(self.col):
                 if not self.grid[row_index][col_index]:
                     line += ' '.center(5) + '|'
                 else:
                     line += str(self.grid[row_index][col_index]).center(5) + '|'
             print(line)
-        print()
+            print('-' * 6 + '|' + '-' * 5 + '|' + '-' * 5 + '|' + '-' * 5 + '|')
 
     def update_empties_set(self):
         # This function updates the list of empty tiles of the grid.
@@ -240,20 +240,12 @@ class Game:
 
     def do_move(self, key):
         move = getattr(self.game, 'collapse_' + self.moves[key])
-        collapsed = move()
-        if collapsed:
-            self.game.update_empties_set()
-            self.game.assign_rand_cell()
+        move()
+        self.game.assign_rand_cell()
+        self.game.update_empties_set()
 
     def reset(self):
         self.game.reset()
-
-    def get_all_possible_moves(self):
-        # FIXME
-        if self.game.collapsible():
-            return list(self.moves.keys())
-        else:
-            return []
 
     @property
     def stuck(self):
@@ -275,14 +267,9 @@ class Game:
             if key == 'p':
                 stop = True
             else:
-                move = getattr(self.game, 'collapse' + self.moves[key])
-                collapsed = move()
+                self.do_move(key)
 
-                if collapsed:
-                    self.game.update_empties_set()
-                    self.game.assign_rand_cell()
-
-                collapsible = self.game.collapsible()
+        collapsible = self.game.collapsible()
 
         if not collapsible:
             if sys.platform == 'win32':
@@ -301,3 +288,11 @@ class Game:
     @property
     def score(self) -> int:
         return self.game.score
+
+    def render(self):
+        self.game.draw_grid()
+
+
+if __name__ == '__main__':
+    g = Game()
+    g.play()
