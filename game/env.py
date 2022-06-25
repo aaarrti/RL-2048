@@ -52,18 +52,30 @@ class GameEnv(PyEnvironment):
     #@log_before
     #@log_after
     def _step(self, action: types.NestedArray) -> ts.TimeStep:
-        old_score = self.game.score
+
         move = map_int_to_key(action)
+
+        old_score = self.game.score
+
+        old_state = flatten(self.game.game.grid)
         self.game.do_move(move)
+
+        new_state = flatten(self.game.game.grid)
         new_score = self.game.score
+
         observation = np.asarray(self.game.observation).flatten()
+
+        if old_state == new_state:
+            # punish agent fot not moving cells
+            self.moves_depth = self.moves_depth + 1
+            return ts.transition(observation=observation, reward=-1)
 
         max_depth_reached = self.max_depth is not None and self.moves_depth == self.max_depth
         if self.stuck or max_depth_reached:
-            return ts.termination(observation=observation, reward=old_score - new_score)
+            return ts.termination(observation=observation, reward=new_score)
         else:
             self.moves_depth = self.moves_depth + 1
-            return ts.transition(observation=observation, reward=old_score - new_score)
+            return ts.transition(observation=observation, reward=new_score)
 
     #@log_before
     #@log_after

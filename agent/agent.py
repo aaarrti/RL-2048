@@ -10,6 +10,7 @@ from tf_agents.replay_buffers import ReverbReplayBuffer
 
 from util import *
 from .metrics import *
+from pathlib import Path
 
 
 def dense_layer(num_units: int):
@@ -94,12 +95,17 @@ def train_agent(agent: TFAgent,
         # print('-' * 40)
         # step = agent.train_step_counter.numpy()
         # print('step = {0}: loss = {1}'.format(step, loss))
-        #print('step = {0}: Average Return = {1}'.format(step, avg_return))
-
-    save_pickle({
-        'return': returns,
-        'loss': losses
-    }, 'agent/history')
+        # print('step = {0}: Average Return = {1}'.format(step, avg_return))
+    if Path('agent/history.pickle').exists():
+        h = load_pickle('agent/history')
+        h['return'] = h['return'] + returns
+        h['loss'] = h['loss'] + losses
+    else:
+        h = {
+            'return': returns,
+            'loss': losses
+        }
+    save_pickle(h, 'agent/history')
 
 
 def checkpoint_saver(agent: TFAgent,

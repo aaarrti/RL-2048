@@ -1,6 +1,7 @@
 import inspect
 import functools
 import pickle
+from typing import List
 
 
 def log_before(func):
@@ -37,3 +38,7 @@ def load_pickle(path):
     with open(f'{path}.pickle', "rb") as file:
         obj = pickle.load(file)
         return obj
+
+
+def flatten(xss: List[List]) -> List:
+    return [x for xs in xss for x in xs]
