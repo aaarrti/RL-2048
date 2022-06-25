@@ -21,19 +21,6 @@ def dense_layer(num_units: int):
                                  )
 
 
-class SeqWorkaround(sequential.Sequential):
-
-    def create_variables(self, input_tensor_spec=None, **kwargs):
-        if input_tensor_spec == tfa.specs.BoundedTensorSpec(shape=(4, 4), dtype=tf.int64, name='observation', minimum=2,
-                                                            maximum=4294967296):
-            print('here')
-            return super().create_variables(
-                tfa.specs.BoundedTensorSpec(shape=(4,), dtype=tf.int64, name='observation', minimum=2,
-                                            maximum=4294967296))
-        else:
-            return super().create_variables(input_tensor_spec, **kwargs)
-
-
 def build_agent(train_env: TFPyEnvironment):
     dense_layers = [dense_layer(num_units) for num_units in FC_LAYERS_PARAMETERS]
     q_values_layer = tf.keras.layers.Dense(
@@ -41,7 +28,7 @@ def build_agent(train_env: TFPyEnvironment):
         activation=None,
         kernel_initializer=tf.keras.initializers.RandomUniform(minval=-0.03, maxval=0.03),
         bias_initializer=tf.keras.initializers.Constant(-0.2))
-    q_net = SeqWorkaround(dense_layers + [q_values_layer])
+    q_net = sequential.Sequential(dense_layers + [q_values_layer])
 
     # def decayed_learning_rate(step):
     #   return initial_learning_rate * decay_rate ^ (step / decay_steps)
