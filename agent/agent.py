@@ -65,6 +65,7 @@ def train_agent(agent: TFAgent,
     losses = []
 
     for _ in tqdm(range(EPOCHS)):
+        train_py_env.max_depth = train_py_env.max_depth * 2
         # Collect a few episodes using collect_policy and save to the replay buffer.
         collect_episode(train_py_env, agent.collect_policy, rb_observer)
 

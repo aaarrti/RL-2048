@@ -1,7 +1,7 @@
 from os import environ
 
 
-EPOCHS = environ.get('EPOCHS', default=1000)
+EPOCHS = environ.get('EPOCHS', default=500)
 
 COLLECT_STEPS_PER_EPOCH = environ.get('COLLECT_STEPS_PER_EPOCH', default=3)
 

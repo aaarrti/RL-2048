@@ -22,7 +22,8 @@ def replay_buffer_observer(agent: TFAgent) -> (ReverbReplayBuffer, ReverbAddTraj
         sampler=reverb.selectors.Uniform(),
         remover=reverb.selectors.Fifo(),
         rate_limiter=reverb.rate_limiters.MinSize(1),
-        signature=replay_buffer_signature)
+        signature=replay_buffer_signature
+    )
 
     reverb_server = reverb.Server([table])
 
