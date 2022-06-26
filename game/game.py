@@ -219,10 +219,12 @@ class Grid:
 
 
 class Game:
-    moves = {'w': 'up',
-             'a': 'left',
-             's': 'down',
-             'd': 'right'}
+    moves = {
+        'w': 'up',
+        'a': 'left',
+        's': 'down',
+        'd': 'right'
+    }
 
     def __init__(self, row=4, col=4, initial=2):
         self.game = Grid(row, col, initial)

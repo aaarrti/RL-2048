@@ -71,10 +71,10 @@ class GameEnv(PyEnvironment):
 
         max_depth_reached = self.max_depth is not None and self.moves_depth == self.max_depth
         if self.stuck or max_depth_reached:
-            return ts.truncation(observation=observation, reward=old_score - new_score)
+            return ts.termination(observation=observation, reward=new_score)
         else:
             self.moves_depth = self.moves_depth + 1
-            return ts.transition(observation=observation, reward=old_score - new_score)
+            return ts.transition(observation=observation, reward=new_score)
 
     #@log_before
     #@log_after

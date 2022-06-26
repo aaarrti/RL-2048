@@ -11,7 +11,7 @@ from game import *
 
 
 POLICY_DIR = 'agent/policy'
-MAX_DEPTH = 100
+MAX_DEPTH = 30
 
 if __name__ == '__main__':
     print(f'{tf.version.VERSION = }')

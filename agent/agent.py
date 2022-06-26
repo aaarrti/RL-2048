@@ -27,7 +27,8 @@ def build_agent(train_env: TFPyEnvironment):
         4,
         activation=None,
         kernel_initializer=tf.keras.initializers.RandomUniform(minval=-0.03, maxval=0.03),
-        bias_initializer=tf.keras.initializers.Constant(-0.2))
+        bias_initializer=tf.keras.initializers.Constant(-0.2)
+    )
     q_net = sequential.Sequential(dense_layers + [q_values_layer])
 
     # def decayed_learning_rate(step):
@@ -65,7 +66,7 @@ def train_agent(agent: TFAgent,
     losses = []
 
     for _ in tqdm(range(EPOCHS)):
-        train_py_env.max_depth = train_py_env.max_depth * 2
+        train_py_env.max_depth = train_py_env.max_depth * 5
         # Collect a few episodes using collect_policy and save to the replay buffer.
         collect_episode(train_py_env, agent.collect_policy, rb_observer)
 
